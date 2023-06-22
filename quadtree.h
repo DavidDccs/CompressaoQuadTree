@@ -4,7 +4,8 @@
 #include <stdio.h>
 
 enum { CHEIO, PARCIAL };
-
+int maxHeight;
+int maxWidth;
 struct Quad {
     unsigned int id;
     float x, y;              // canto superior esquerdo da região
@@ -32,6 +33,7 @@ typedef struct Quad QuadNode;
 
 QuadNode* geraQuadtree(Img* img, float minDetail);
 QuadNode* newNode(int x, int y, int width, int height);
+void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[maxHeight][maxWidth]);
 
 void clearTree(QuadNode* n);
 void drawTree(QuadNode* raiz);

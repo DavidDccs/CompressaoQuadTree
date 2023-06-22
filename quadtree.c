@@ -12,6 +12,9 @@
 unsigned int first = 1;
 char desenhaBorda = 1;
 
+int maxHeight = 0; // eu odeio matriz em C
+int maxWidth = 0;
+
 QuadNode* newNode(int x, int y, int width, int height)
 {
     QuadNode* n = malloc(sizeof(QuadNode));
@@ -26,111 +29,137 @@ QuadNode* newNode(int x, int y, int width, int height)
 }
 
 
-QuadNode* criaQuadTree(QuadNode* inicio,float minErro,int height2, int width2, unsigned char batata[height2][width2]){
-    int width = inicio->width;
-    int height = inicio->height;
-    inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
-    inicio->NE = newNode(inicio->x + width/2,inicio->y,width/2,height/2);
-    inicio->SW = newNode(inicio->x,inicio->y + height/2,width/2,height/2);
-    inicio->SE = newNode(inicio->x + width/2,inicio->y + height/2,width/2,height/2);
-
-    unsigned char histograma[256];
-    for (int i = inicio->y;i< height; i++ ){
-        for (int j = inicio->x;j< width; j++){
-            unsigned char hist = batata[i][j];
-            histograma [hist]++;
-        }}
-
-    int totalPixels = height * width;
-
-    int somatorioIntensidade = 0;
-    for(int i = 0; i < 256; i++){
-        somatorioIntensidade+= i * ((int)histograma[i]);
-    }
-
-    double intensidadeMedia = somatorioIntensidade / totalPixels;
-
-
-    double somatorioErro = 0.0;
-    for (int i = inicio->y;i< height; i++ ){
-        for (int j = inicio->x;j< width; j++) {
-            unsigned char aux = batata[i][j];
-            somatorioErro+=  ((double) aux - intensidadeMedia) * ((double) aux - intensidadeMedia);
-        }}
-
-    double erro = sqrt(somatorioErro/ totalPixels);
-
-    if (erro<= minErro) return inicio;
-
-    criaQuadTree(inicio->NW, minErro,height2,width2,batata);
-    criaQuadTree(inicio->NE, minErro,height2,width2,batata);
-    criaQuadTree(inicio->SW, minErro,height2,width2,batata);
-    criaQuadTree(inicio->SE, minErro,height2,width2,batata);
-}
-
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
-    // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
+    //CONVERTE P RGBPIXEL
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-
-    int i;
-    unsigned char matrizNask[pic->height][pic->width];
-    //for (int j=0; j<pic->height;j++) {
-    for (i = 0; i < pic->width; i++) {
-        pixels[0][i].r = pixels[0][i].r * 0.3;
-        pixels[0][i].g = pixels[0][i].g * 0.59;
-        pixels[0][i].b = pixels[0][i].b * 0.11;
-        matrizNask[0][i] = (unsigned char) round(pixels[0][i].r + pixels[0][i].g + pixels[0][i].b);
-    }
-    // }
-
 
     int width = pic->width;
     int height = pic->height;
 
-    criaQuadTree( newNode(0,0,width,height), minError,width,height,matrizNask);
+    maxHeight = height;
+    maxWidth = width; // colocar isso p poder passar a imagem cinza como parametro pqp
 
-// COMENTE a linha abaixo quando seu algoritmo ja estiver funcionando
-// Caso contrario, ele ira gerar uma arvore de teste com 3 nodos
+    int imagemCinza[maxHeight][maxWidth];
 
-    QuadNode* raiz = newNode(0,0,width,height);
-//#define DEMO
-#ifdef DEMO
+    //deixa a imagem cinza pq o olho humano ve mto verde
+    for(int i =0; i< height; i++){
+        for(int j = 0; j< width; j++){
+            imagemCinza[i][j] =  pixels[i][j].r * 0.3 + pixels[i][j].g * 0.59 + pixels[i][j].b * 0.11;
+        }
+    }
+    printf("gera quad tree\n");
 
-    /************************************************************/
-    /* Teste: criando uma raiz e dois nodos a mais              */
-    /************************************************************/
+    QuadNode* raiz =newNode(0,0,width,height);
+    recursao(raiz,pic,0,0,width,height,minError,imagemCinza); //cria o primeiro nodo o pai de todos amém
 
-    QuadNode* raiz = newNode(0,0,width,height);
-    raiz->status = PARCIAL;
-    raiz->color[0] = 0;
-    raiz->color[1] = 0;
-    raiz->color[2] = 255;
-
-    int meiaLargura = width/2;
-    int meiaAltura = height/2;
-
-    QuadNode* nw = newNode(meiaLargura, 0, meiaLargura, meiaAltura);
-    nw->status = PARCIAL;
-    nw->color[0] = 0;
-    nw->color[1] = 0;
-    nw->color[2] = 255;
-
-    // Aponta da raiz para o nodo nw
-    raiz->NW = nw;
-
-    QuadNode* nw2 = newNode(meiaLargura+meiaLargura/2, 0, meiaLargura/2, meiaAltura/2);
-    nw2->status = CHEIO;
-    nw2->color[0] = 255;
-    nw2->color[1] = 0;
-    nw2->color[2] = 0;
-
-    // Aponta do nodo nw para o nodo nw2
-    nw->NW = nw2;
-
-#endif
-    // Finalmente, retorna a raiz da árvore
     return raiz;
+}
+
+void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[height][width]){
+    //bota dnv isso
+    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
+    printf("entrou recursao \n");
+    int totalPixeis = height * width;
+    int ex = x;
+    int ey = y;
+
+    int meiaWidth = width/2;
+    int meiaHeight = height/2;
+
+    //calcula cor media
+    int totalR = 0;
+    int totalG = 0;
+    int totalB = 0;
+    printf("antes bbbbbbbbbbbbbbbb\n ");
+
+       for (int i = y; i < height + y; i++) {
+        for (int j = x; j < width + x; j++) {
+           //printf("%d j = \n", j);
+            totalR = totalR + pixels[i][j].r;
+            //printf("\n%d red ", totalR);
+            totalG = totalG + pixels[i][j].g;
+            //printf("\n%d green", totalG);
+            totalB = totalB + pixels[i][j].b;
+            //printf("\n%d blue", totalB);
+        }
+    }
+    printf("antes totalRGB\n ");
+
+    totalR = totalR / totalPixeis;
+    totalG = totalG / totalPixeis;
+    totalB = totalB / totalPixeis;
+    
+    //na duvida coloca rgbpixel -> mudaria se fosse array? nos outros testes não...
+
+    raiz->color[0] = totalR;
+    raiz->color[1] = totalG;
+    raiz->color[2] = totalB;
+
+    printf("antes calcula erro\n ");
+
+    //calcula o erro
+    int histograma[256] = {0};
+    printf("uuuuuu\n");
+    long erro = 0; 
+  
+    for (int i = ey; i < height + ey; i++){
+        for (int j = ex; j < width + ex; j++){
+            int valorDoPixel = imagemCinza[i][j];
+            histograma[valorDoPixel]++;
+            printf("\n%d histo", histograma);
+        }
+    }
+
+    int intensidade = 0;
+    // Para tanto, deve-se fazer um somatório de cada entrada do histograma multiplicada por sua frequência -> tem que multiplica por i, não somar 
+    for(int i =0; i<256; i++) {
+        intensidade = i * histograma[i];
+    }
+
+    intensidade = intensidade / totalPixeis;
+
+    for(int i = y; i< height + y; i++){
+        for(int j = x; j<width + x; j++){
+            erro += (imagemCinza[i][j] - intensidade) * (imagemCinza[i][j] - intensidade); // me recuso a importar math pra uma potenciação
+        }
+    }
+
+
+    //A seguir, divide-se essa soma pelo total de pixels da região -> entra raiz no meio 
+
+    erro = sqrt(erro / totalPixeis); // o mal venceu
+
+    printf("antes do if\n ");
+    if(erro > minError && meiaHeight > 0 && meiaWidth > 0){
+        printf("entou if\n ");
+        raiz->NW = newNode(raiz->x, raiz->y, meiaWidth , meiaHeight);
+        raiz->NE = newNode(raiz->x + meiaWidth, raiz->y, meiaWidth, meiaHeight);
+        raiz->SW = newNode(raiz->x, raiz->y + meiaHeight, meiaWidth, meiaHeight);
+        raiz->SE = newNode(raiz->x + meiaWidth, raiz->y + meiaHeight, meiaWidth, meiaHeight);
+
+        if (meiaHeight == 1 || meiaWidth == 1){
+            raiz->NE->status = CHEIO;
+            raiz->NW->status = CHEIO;
+            raiz->SW->status = CHEIO;
+            raiz->SE->status = CHEIO;
+            return;
+        }
+        raiz->status = PARCIAL;
+
+        recursao(raiz->NW,pic, x, y, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
+        recursao(raiz->NE,pic, x + meiaWidth, y, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
+        recursao(raiz->SW,pic, x, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
+        recursao(raiz->SE,pic, x + meiaWidth, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
+    }
+    else {
+        raiz->status = CHEIO;
+        raiz->NW = NULL;
+        raiz->NE = NULL;
+        raiz->SW = NULL;
+        raiz->SE = NULL;
+    return;
+    }
 }
 
 // Limpa a memória ocupada pela árvore
