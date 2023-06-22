@@ -29,66 +29,80 @@ QuadNode* newNode(int x, int y, int width, int height)
 QuadNode* criaQuadTree(QuadNode* inicio,float minErro,int height2, int width2, unsigned char matrizCinza[height2][width2], Img* pic){
     int width = inicio->width;
     int height = inicio->height;
-    inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
-    inicio->NE = newNode(inicio->x + width/2,inicio->y,width/2,height/2);
-    inicio->SW = newNode(inicio->x,inicio->y + height/2,width/2,height/2);
-    inicio->SE = newNode(inicio->x + width/2,inicio->y + height/2,width/2,height/2);
+    if(minErro<= minErro && width/2<=1 && height/2<=1) {
+        inicio->NW = newNode(inicio->x, inicio->y, width / 2, height / 2);
+        inicio->NE = newNode(inicio->x + width / 2, inicio->y, width / 2, height / 2);
+        inicio->SW = newNode(inicio->x, inicio->y + height / 2, width / 2, height / 2);
+        inicio->SE = newNode(inicio->x + width / 2, inicio->y + height / 2, width / 2, height / 2);
+
+        //histograma
+        unsigned char histograma[256];
+        for (int i = inicio->y; i < height; i++) {
+            for (int j = inicio->x; j < width; j++) {
+                unsigned char hist = matrizCinza[i][j];
+                histograma[hist]++;
+            }
+        }
+
+        int totalPixels = height * width;
+
+        //total RGB da região
+        RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
+        int somatorioR = 0;
+        int somatorioG = 0;
+        int somatorioB = 0;
+
+        for (int j = 0; j < pic->height; j++) {
+            for (int i = 0; i < pic->width; i++) {
+                somatorioR += pixels[0][i].r;
+                somatorioG += pixels[0][i].g;
+                somatorioB += pixels[0][i].b;
+            }
+        }
+        int totalR = round(somatorioR / totalPixels);
+        int totalG = round(somatorioG / totalPixels);
+        int totalB = round(somatorioB / totalPixels);
+
+        unsigned char color[3] = {totalR, totalG, totalB};
+        inicio->color[0] = color[0];
+        inicio->color[1] = color[1];
+        inicio->color[2] = color[2];
 
 
-    unsigned char histograma[256];
-    for (int i = inicio->y;i< height; i++ ){
-        for (int j = inicio->x;j< width; j++){
-            unsigned char hist = matrizCinza[i][j];
-            histograma [hist]++;
-        }}
+        int somatorioIntensidade = 0;
+        for (int i = 0; i < 256; i++) {
+            somatorioIntensidade += i * ((int) histograma[i]);
+        }
 
-    int totalPixels = height * width;
+        double intensidadeMedia = somatorioIntensidade / totalPixels;
 
-    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-    int somatorioR = 0;
-    int somatorioG = 0;
-    int somatorioB = 0;
 
-    for (int i = 0; i < pic->width; i++) {
-        somatorioR += pixels[0][i].r;
-        somatorioG += pixels[0][i].g;
-        somatorioB += pixels[0][i].b;
+        double somatorioErro = 0.0;
+        for (int i = inicio->y; i < height; i++) {
+            for (int j = inicio->x; j < width; j++) {
+                unsigned char aux = matrizCinza[i][j];
+                somatorioErro += ((double) aux - intensidadeMedia) * ((double) aux - intensidadeMedia);
+            }
+        }
+
+        double erro = sqrt(somatorioErro / totalPixels);
+
+
+        inicio->status = PARCIAL;
+        criaQuadTree(inicio->NW, minErro, height2, width2, matrizCinza, pic);
+        criaQuadTree(inicio->NE, minErro, height2, width2, matrizCinza, pic);
+        criaQuadTree(inicio->SW, minErro, height2, width2, matrizCinza, pic);
+        criaQuadTree(inicio->SE, minErro, height2, width2, matrizCinza, pic);
+        return inicio;
     }
-
-    int totalR = round(somatorioR/totalPixels);
-    int totalG = round(somatorioG/totalPixels);
-    int totalB = round(somatorioB/totalPixels);
-
-    unsigned char color[3] = {totalR,totalG,totalB};
-    inicio->color[0] = color[0];
-    inicio->color[1] = color[1];
-    inicio->color[2] = color[2];
-
-
-    int somatorioIntensidade = 0;
-    for(int i = 0; i < 256; i++){
-        somatorioIntensidade+= i * ((int)histograma[i]);
+    else{
+        inicio->NW= NULL;
+        inicio->NE= NULL;
+        inicio->SW= NULL;
+        inicio->SE= NULL;
+        inicio->status= CHEIO;
+        return;
     }
-
-    double intensidadeMedia = somatorioIntensidade / totalPixels;
-
-
-    double somatorioErro = 0.0;
-    for (int i = inicio->y;i< height; i++ ){
-        for (int j = inicio->x;j< width; j++) {
-            unsigned char aux = matrizCinza[i][j];
-            somatorioErro+=  ((double) aux - intensidadeMedia) * ((double) aux - intensidadeMedia);
-        }}
-
-    double erro = sqrt(somatorioErro/ totalPixels);
-
-    if (erro<= minErro) return inicio;
-
-    criaQuadTree(inicio->NW, minErro,height2,width2,matrizCinza, pic);
-    criaQuadTree(inicio->NE, minErro,height2,width2,matrizCinza, pic);
-    criaQuadTree(inicio->SW, minErro,height2,width2,matrizCinza, pic);
-    criaQuadTree(inicio->SE, minErro,height2,width2,matrizCinza, pic);
-    return inicio;
 }
 
 QuadNode* geraQuadtree(Img* pic, float minError)
@@ -98,14 +112,14 @@ QuadNode* geraQuadtree(Img* pic, float minError)
 
     int i;
     unsigned char matrizNask[pic->height][pic->width];
-    //for (int j=0; j<pic->height;j++) {
+    for (int j=0; j<pic->height;j++) {
     for (i = 0; i < pic->width; i++) {
-        pixels[0][i].r = pixels[0][i].r * 0.3;
-        pixels[0][i].g = pixels[0][i].g * 0.59;
-        pixels[0][i].b = pixels[0][i].b * 0.11;
-        matrizNask[0][i] = (unsigned char) round(pixels[0][i].r + pixels[0][i].g + pixels[0][i].b);
+        pixels[j][i].r = pixels[j][i].r * 0.3;
+        pixels[j][i].g = pixels[j][i].g * 0.59;
+        pixels[j][i].b = pixels[j][i].b * 0.11;
+        matrizNask[j][i] = (unsigned char) round(pixels[j][i].r + pixels[j][i].g + pixels[j][i].b);
     }
-    // }
+    }
 
 
     int width = pic->width;
