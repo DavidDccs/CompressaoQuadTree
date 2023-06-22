@@ -41,31 +41,18 @@ QuadNode* criaQuadTree(QuadNode* inicio,float minErro){
     criaQuadTree(inicio->SE, minErro);
 }
 
-Img deixaImagemCinza (Img* pic){
-    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-    RGBPixel (*pixels2) [pic->width] = pixels;
-    int linha;
-    for(linha =0; linha<pic->width; linha++){
-       pixels2[0][linha].r = pixels[0][linha].r * 0.3;
-       pixels2[1][linha].g = pixels[1][linha].g * 0.59;
-       pixels2[2][linha].b = pixels[2][linha].b * 0.11;
-    }
-    Img nova;
-     nova.img = (*pixels2);
-     nova.width = p
-    return nova;
-}
-
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
     // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
 
-    // Veja como acessar os primeiros 10 pixels da imagem, por exemplo:
     int i;
-    for(i=0; i<pic->width; i++)
-        printf("%02X %02X %02X\n",pixels[0][i].r,pixels[1][i].g,pixels[2][i].b);
+    for(i=0; i<pic->width; i++){
+        pixels[0][i].r = pixels[0][i].r * 0.3;
+        pixels[0][i].g = pixels[0][i].g * 0.59;
+        pixels[0][i].b = pixels[0][i].b * 0.11;
 
+    }
     int width = pic->width;
     int height = pic->height;
 
