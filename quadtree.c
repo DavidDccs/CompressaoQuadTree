@@ -23,7 +23,28 @@ QuadNode* newNode(int x, int y, int width, int height)
     n->id = first++;
     return n;
 }
+double toGrey(int r, int g, int b);
 
+double toGrey(int r, int g, int b){
+    double aux =0.3*r + 0.59*g + 0.11*b;
+    return aux;
+}
+
+QuadNode* criaQuadTree(QuadNode* inicio,float minErro){
+    int width = inicio->width;
+    int height = inicio->height;
+ inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
+ inicio->NE = newNode(inicio->x + width/2,inicio->y,width/2,height/2);
+ inicio->SW = newNode(inicio->x,inicio->y + height/2,width/2,height/2);
+ inicio->SE = newNode(inicio->x + width/2,inicio->y + height/2,width/2,height/2);
+    int histograma [256];
+
+
+    criaQuadTree(inicio->NW, minErro);
+    criaQuadTree(inicio->NE, minErro);
+    criaQuadTree(inicio->SW, minErro);
+    criaQuadTree(inicio->SE, minErro);
+}
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
     // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
@@ -37,6 +58,7 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     int width = pic->width;
     int height = pic->height;
 
+    criaQuadTree( newNode(0,0,width,height), minError);
     //////////////////////////////////////////////////////////////////////////
     // Implemente aqui o algoritmo que gera a quadtree, retornando o nodo raiz
     //////////////////////////////////////////////////////////////////////////
