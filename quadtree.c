@@ -103,8 +103,8 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
     printf("uuuuuu\n");
     long erro = 0; 
   
-    for (int i = ey; i < height + ey; i++){
-        for (int j = ex; j < width + ex; j++){
+    for (int i = y; i < height + y; i++){
+        for (int j = x; j < width + x; j++){
             int valorDoPixel = imagemCinza[i][j];
             histograma[valorDoPixel]++;
             printf("\n%d histo", histograma);
