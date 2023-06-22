@@ -32,6 +32,7 @@ typedef struct Quad QuadNode;
 
 QuadNode* geraQuadtree(Img* img, float minDetail);
 QuadNode* newNode(int x, int y, int width, int height);
+QuadNode* recursao(Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[][]);
 
 void clearTree(QuadNode* n);
 void drawTree(QuadNode* raiz);
