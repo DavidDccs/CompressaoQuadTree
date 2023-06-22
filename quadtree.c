@@ -50,71 +50,6 @@ QuadNode* geraQuadtree(Img* pic, float minError)
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    // Implemente aqui o algoritmo que gera a quadtree, retornando o nodo raiz
-    //////////////////////////////////////////////////////////////////////////
-QuadNode* raiz = newNode(0,0,width,height);
- int test = 0;
- int meiaLargura = width;
-int meiaAltura = height;
-
-    raiz->status = PARCIAL;
-    raiz->color[0] = 0;
-    raiz->color[1] = 0;
-    raiz->color[2] = 255;
-
-    meiaLargura = meiaLargura/2;
-    meiaAltura = meiaAltura/2;
-
-    //topo esquerda
-    QuadNode* nw = newNode(meiaLargura, 0, meiaLargura, meiaAltura);
-    nw->status = PARCIAL;
-    nw->color[0] = 0;
-    nw->color[1] = 0;
-    nw->color[2] = 255;
-
-    //topo direita
-    QuadNode* ne = newNode(0, 0, meiaLargura, meiaAltura);
-    ne->status = PARCIAL;
-    ne->color[0] = 255;
-    ne->color[1] = 0;
-    ne->color[2] = 0;
-
-
-    //baixo direita
-    QuadNode* se = newNode(meiaLargura, meiaAltura, meiaLargura, meiaAltura);
-    se->status = PARCIAL;
-    se->color[0] = 255;
-    se->color[1] = 255;
-    se->color[2] = 255;
-
-    //baixo esquerda
-    QuadNode* sw = newNode(0, meiaAltura, meiaLargura, meiaAltura);
-    sw->status = PARCIAL;
-    sw->color[0] = 255;
-    sw->color[1] = 0;
-    sw->color[2] = 255;
-
-    // Aponta da raiz para o nodo nw
-    raiz->NW = nw;
-    raiz->SE = se;
-    raiz->SW = sw;
-    raiz->NE = ne;
-
-    return raiz;
-}
-
-
-void criaQuadTree(QuadNode* inicio,float minErro,int alturaMatriz, int larguraMatriz, unsigned char matrizCinza[alturaMatriz][larguraMatriz], Img* pic){
-    int width = inicio->width;
-    int height = inicio->height;
-
-    //instancia os nodos a serem usador
-    QuadNode* nw = newNode(width/2, 0 ,width/2,height/2);
-    QuadNode* ne = newNode(0,0,width/2,height/2);
-    QuadNode* sw = newNode(width/2,height/2,width/2,height/2);
-    QuadNode* ne = newNode(0,height/2,width/2,height/2);
-
     //VARIAVEIS REFERENTE AO HISTOGRAMA DA REGIÃO
     int histograma [256];
     int intensidadeMediaCinza = 0;
@@ -178,10 +113,23 @@ void criaQuadTree(QuadNode* inicio,float minErro,int alturaMatriz, int larguraMa
 
     int mediaCor = round((nR + nG + nB)/3);
 
-    // criaQuadTree(inicio->NW, minErro,height2,width2,matrizCinza, pic);
-    // criaQuadTree(inicio->NE, minErro,height2,width2,matrizCinza, pic);
-    // criaQuadTree(inicio->SW, minErro,height2,width2,matrizCinza, pic);
-    // criaQuadTree(inicio->SE, minErro,height2,width2,matrizCinza, pic);
+
+    //////////////////////////////////////////////////////////////////////////
+    // Implemente aqui o algoritmo que gera a quadtree, retornando o nodo raiz
+    //////////////////////////////////////////////////////////////////////////
+    QuadNode* raiz = newNode(0,0,width,height);
+    int meiaLargura = width;
+    int meiaAltura = height;
+
+    raiz->status = PARCIAL;
+    raiz->color[0] = 0;
+    raiz->color[1] = 0;
+    raiz->color[2] = 255;
+
+    meiaLargura = meiaLargura/2;
+    meiaAltura = meiaAltura/2;
+
+    return raiz;
 }
 
 // Limpa a memória ocupada pela árvore
