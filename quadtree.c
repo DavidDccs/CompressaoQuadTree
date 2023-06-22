@@ -35,21 +35,6 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     int width = pic->width;
     int height = pic->height;
 
-    // HISTOGRAMA
-
-    int histograma [256];
-
-    //Como a conversão para cinza é somente para o histograma, não tem pq salvar ela ; coloca na posição do tom de cinza uma frequência a mais.
-    for(int i = 0; i<height; i++){
-        for(int j = 0; j<width; j++){
-            int vermelho = round(pixels[i][j].r * 0.3);
-            int verde = round(pixels[i][j].g * 0.59);
-            int azul = round(pixels[i][j].b * 0.11);
-
-            histograma[vermelho+azul+verde] = histograma[vermelho+azul+verde] + 1;
-        }
-    }
-
     //VARIAVEIS REFERENTE AO HISTOGRAMA DA REGIÃO
     int histograma [256];
     int intensidadeMediaCinza = 0;
@@ -58,10 +43,6 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     int nR =0;
     int nG =0;
     int nB =0;
-
-
-    //ARRAY DE PIXELS
-    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
     
     //**CALCULO DO HISTOGRAMA**
 
