@@ -53,13 +53,11 @@ QuadNode* geraQuadtree(Img* pic, float minError)
         pixels[0][i].b = pixels[0][i].b * 0.11;
 
     }
+
     int width = pic->width;
     int height = pic->height;
 
-    criaQuadTree( newNode(0,0,width,height), minError, pixels);
-    //////////////////////////////////////////////////////////////////////////
-    // Implemente aqui o algoritmo que gera a quadtree, retornando o nodo raiz
-    //////////////////////////////////////////////////////////////////////////
+    criaQuadTree( newNode(0,0,width,height), minError);
 
 // COMENTE a linha abaixo quando seu algoritmo ja estiver funcionando
 // Caso contrario, ele ira gerar uma arvore de teste com 3 nodos
