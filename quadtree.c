@@ -26,7 +26,7 @@ QuadNode* newNode(int x, int y, int width, int height)
 }
 
 
-QuadNode* criaQuadTree(QuadNode* inicio,float minErro){
+QuadNode* criaQuadTree(QuadNode* inicio,float minErro,int height2, int width2, unsigned char batata[height2][width2]){
     int width = inicio->width;
     int height = inicio->height;
     inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
@@ -35,12 +35,21 @@ QuadNode* criaQuadTree(QuadNode* inicio,float minErro){
     inicio->SE = newNode(inicio->x + width/2,inicio->y + height/2,width/2,height/2);
 
     unsigned char histograma[256];
+    for (int i = inicio->y;i< height; i++ ){
+        for (int j = inicio->x;j< width; j++){
+        unsigned char hist = batata[i][j];
+        histograma [hist]++;
+        }}
 
-
-    criaQuadTree(inicio->NW, minErro);
-    criaQuadTree(inicio->NE, minErro);
-    criaQuadTree(inicio->SW, minErro);
-    criaQuadTree(inicio->SE, minErro);
+    for (int i = inicio->y;i< height; i++ ){
+        for (int j = inicio->x;j< width; j++) {
+        unsigned char aux = batata[i][j];
+        
+        }}
+    criaQuadTree(inicio->NW, minErro,height2,width2,batata);
+    criaQuadTree(inicio->NE, minErro,height2,width2,batata);
+    criaQuadTree(inicio->SW, minErro,height2,width2,batata);
+    criaQuadTree(inicio->SE, minErro,height2,width2,batata);
 }
 
 QuadNode* geraQuadtree(Img* pic, float minError)
@@ -63,10 +72,11 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     int width = pic->width;
     int height = pic->height;
 
-    criaQuadTree( newNode(0,0,width,height), minError);
+    criaQuadTree( newNode(0,0,width,height), minError,width,height,matrizNask);
 
 // COMENTE a linha abaixo quando seu algoritmo ja estiver funcionando
 // Caso contrario, ele ira gerar uma arvore de teste com 3 nodos
+
 
 #define DEMO
 #ifdef DEMO
