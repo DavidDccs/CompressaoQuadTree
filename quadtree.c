@@ -37,15 +37,31 @@ QuadNode* criaQuadTree(QuadNode* inicio,float minErro,int height2, int width2, u
     unsigned char histograma[256];
     for (int i = inicio->y;i< height; i++ ){
         for (int j = inicio->x;j< width; j++){
-        unsigned char hist = batata[i][j];
-        histograma [hist]++;
+            unsigned char hist = batata[i][j];
+            histograma [hist]++;
         }}
 
+    int totalPixels = height * width;
+
+    int somatorioIntensidade = 0;
+    for(int i = 0; i < 256; i++){
+        somatorioIntensidade+= i * ((int)histograma[i]);
+    }
+
+    double intensidadeMedia = somatorioIntensidade / totalPixels;
+
+
+    double somatorioErro = 0.0;
     for (int i = inicio->y;i< height; i++ ){
         for (int j = inicio->x;j< width; j++) {
-        unsigned char aux = batata[i][j];
-        
+            unsigned char aux = batata[i][j];
+            somatorioErro+=  ((double) aux - intensidadeMedia) * ((double) aux - intensidadeMedia);
         }}
+
+    double erro = sqrt(somatorioErro/ totalPixels);
+
+    if (erro<= minErro) return inicio;
+
     criaQuadTree(inicio->NW, minErro,height2,width2,batata);
     criaQuadTree(inicio->NE, minErro,height2,width2,batata);
     criaQuadTree(inicio->SW, minErro,height2,width2,batata);
@@ -77,8 +93,8 @@ QuadNode* geraQuadtree(Img* pic, float minError)
 // COMENTE a linha abaixo quando seu algoritmo ja estiver funcionando
 // Caso contrario, ele ira gerar uma arvore de teste com 3 nodos
 
-
-#define DEMO
+    QuadNode* raiz = newNode(0,0,width,height);
+//#define DEMO
 #ifdef DEMO
 
     /************************************************************/
