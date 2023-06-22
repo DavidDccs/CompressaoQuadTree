@@ -23,14 +23,15 @@ QuadNode* newNode(int x, int y, int width, int height)
     n->id = first++;
     return n;
 }
-double toGrey(int r, int g, int b);
+int toGrey(int r, int g, int b);
 
-double toGrey(int r, int g, int b){
+int toGrey(int r, int g, int b){
     double aux =0.3*r + 0.59*g + 0.11*b;
-    return aux;
+    int resultado = (int) aux;
+    return resultado;
 }
 
-QuadNode* criaQuadTree(QuadNode* inicio,float minErro){
+QuadNode* criaQuadTree(QuadNode* inicio,float minErro, RGBPixel){
     int width = inicio->width;
     int height = inicio->height;
  inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
@@ -58,7 +59,7 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     int width = pic->width;
     int height = pic->height;
 
-    criaQuadTree( newNode(0,0,width,height), minError);
+    criaQuadTree( newNode(0,0,width,height), minError, pixels);
     //////////////////////////////////////////////////////////////////////////
     // Implemente aqui o algoritmo que gera a quadtree, retornando o nodo raiz
     //////////////////////////////////////////////////////////////////////////
