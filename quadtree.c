@@ -1,6 +1,7 @@
 #include "quadtree.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -28,11 +29,12 @@ QuadNode* newNode(int x, int y, int width, int height)
 QuadNode* criaQuadTree(QuadNode* inicio,float minErro){
     int width = inicio->width;
     int height = inicio->height;
- inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
- inicio->NE = newNode(inicio->x + width/2,inicio->y,width/2,height/2);
- inicio->SW = newNode(inicio->x,inicio->y + height/2,width/2,height/2);
- inicio->SE = newNode(inicio->x + width/2,inicio->y + height/2,width/2,height/2);
-    int histograma [256];
+    inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
+    inicio->NE = newNode(inicio->x + width/2,inicio->y,width/2,height/2);
+    inicio->SW = newNode(inicio->x,inicio->y + height/2,width/2,height/2);
+    inicio->SE = newNode(inicio->x + width/2,inicio->y + height/2,width/2,height/2);
+
+    unsigned char histograma[256];
 
 
     criaQuadTree(inicio->NW, minErro);
@@ -47,12 +49,16 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
 
     int i;
-    for(i=0; i<pic->width; i++){
+    unsigned char matrizNask[pic->height][pic->width];
+    //for (int j=0; j<pic->height;j++) {
+    for (i = 0; i < pic->width; i++) {
         pixels[0][i].r = pixels[0][i].r * 0.3;
         pixels[0][i].g = pixels[0][i].g * 0.59;
         pixels[0][i].b = pixels[0][i].b * 0.11;
-
+        matrizNask[0][i] = (unsigned char) round(pixels[0][i].r + pixels[0][i].g + pixels[0][i].b);
     }
+    // }
+
 
     int width = pic->width;
     int height = pic->height;
