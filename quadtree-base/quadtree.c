@@ -76,9 +76,9 @@ QuadNode* recursao(Img* pic, int x, int y, int width, int height, float minError
         }
     }
     
-    int totalR = totalR / totalPixeis;
-    int totalG = totalG / totalPixeis;
-    int totalB = totalB / totalPixeis;
+    totalR = totalR / totalPixeis;
+    totalG = totalG / totalPixeis;
+    totalB = totalB / totalPixeis;
     
     //na duvida coloca rgbpixel
     RGBPixel mediaCores;
@@ -99,7 +99,7 @@ QuadNode* recursao(Img* pic, int x, int y, int width, int height, float minError
     }
 
     int intensidade = 0;
-    // Para tanto, deve-se fazer um somatório de cada entrada do histograma multiplicada por sua frequência -> tem que multiplica por i, não somar k
+    // Para tanto, deve-se fazer um somatório de cada entrada do histograma multiplicada por sua frequência -> tem que multiplica por i, não somar 
     for(int i =0; i<256; i++) {
         intensidade = i * histograma[i];
     }
@@ -110,11 +110,9 @@ QuadNode* recursao(Img* pic, int x, int y, int width, int height, float minError
         for(int j = x; j<width + x; j++){
             erro += (imagemCinza[i][j] - intensidade) * (imagemCinza[i][j] - intensidade); // me recuso a importar math pra uma potenciação
         }
-        
     }
 
-    erro = erro / totalPixeis;
-    erro = sqrt(erro); // o mal venceu
+    erro = sqrt(erro / totalPixeis); // o mal venceu
 
     QuadNode* raiz = newNode(x,y,width,height);
 
