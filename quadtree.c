@@ -23,15 +23,9 @@ QuadNode* newNode(int x, int y, int width, int height)
     n->id = first++;
     return n;
 }
-int toGrey(int r, int g, int b);
 
-int toGrey(int r, int g, int b){
-    double aux =0.3*r + 0.59*g + 0.11*b;
-    int resultado = (int) aux;
-    return resultado;
-}
 
-QuadNode* criaQuadTree(QuadNode* inicio,float minErro, RGBPixel){
+QuadNode* criaQuadTree(QuadNode* inicio,float minErro){
     int width = inicio->width;
     int height = inicio->height;
  inicio->NW = newNode(inicio->x,inicio->y,width/2,height/2);
@@ -46,6 +40,22 @@ QuadNode* criaQuadTree(QuadNode* inicio,float minErro, RGBPixel){
     criaQuadTree(inicio->SW, minErro);
     criaQuadTree(inicio->SE, minErro);
 }
+
+Img deixaImagemCinza (Img* pic){
+    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
+    RGBPixel (*pixels2) [pic->width] = pixels;
+    int linha;
+    for(linha =0; linha<pic->width; linha++){
+       pixels2[0][linha].r = pixels[0][linha].r * 0.3;
+       pixels2[1][linha].g = pixels[1][linha].g * 0.59;
+       pixels2[2][linha].b = pixels[2][linha].b * 0.11;
+    }
+    Img nova;
+     nova.img = (*pixels2);
+     nova.width = p
+    return nova;
+}
+
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
     // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
@@ -53,7 +63,7 @@ QuadNode* geraQuadtree(Img* pic, float minError)
 
     // Veja como acessar os primeiros 10 pixels da imagem, por exemplo:
     int i;
-    for(i=0; i<10; i++)
+    for(i=0; i<pic->width; i++)
         printf("%02X %02X %02X\n",pixels[0][i].r,pixels[1][i].g,pixels[2][i].b);
 
     int width = pic->width;
