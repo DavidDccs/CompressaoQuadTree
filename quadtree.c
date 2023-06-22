@@ -48,47 +48,59 @@ QuadNode* geraQuadtree(Img* pic, float minError)
             imagemCinza[i][j] =  pixels[i][j].r * 0.3 + pixels[i][j].g * 0.59 + pixels[i][j].b * 0.11;
         }
     }
+    printf("gera quad tree\n");
 
-    QuadNode* raiz = recursao(pic,0,0,width,height,minError,imagemCinza); //cria o primeiro nodo o pai de todos amém
+    QuadNode* raiz =newNode(0,0,width,height);
+    recursao(raiz,pic,0,0,width,height,minError,imagemCinza); //cria o primeiro nodo o pai de todos amém
 
     return raiz;
 }
 
-QuadNode* recursao(Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[maxHeight][maxWidth]){
+void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[maxHeight][maxWidth]){
     //bota dnv isso
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-
+    printf("entrou recursao \n");
     int totalPixeis = height * width;
 
     int meiaWidth = width/2;
     int meiaHeight = height/2;
-    
+
     //calcula cor media
     int totalR = 0;
     int totalG = 0;
     int totalB = 0;
+    printf("antes bbbbbbbbbbbbbbbb\n ");
 
-    for(int i = y; i<height; i++){
-        for(int j = x; x<width; j++){
+    for(int i = y; i<height+y; i++){
+        printf("i = %d\n", i);
+
+        printf("x = %d \n", x);
+        printf("width+x = %d\n", width+x);
+
+        for(int j = x; x < (width+x); j++){
+           //printf("%d j = \n", j);
+            if(j==512){ printf("j = %d , x+width = %d", j, x+width);}
             totalR = totalR + pixels[i][j].r;
             totalG = totalG + pixels[i][j].g;
             totalB = totalB + pixels[i][j].b;
         }
     }
-    
+    printf("antes totalRGB\n ");
+
     totalR = totalR / totalPixeis;
     totalG = totalG / totalPixeis;
     totalB = totalB / totalPixeis;
     
     //na duvida coloca rgbpixel -> mudaria se fosse array? nos outros testes não...
-    RGBPixel mediaCores;
-    mediaCores.r = totalR;
-    mediaCores.g = totalG;
-    mediaCores.b = totalB;
 
+    raiz->color[0] = totalR;
+    raiz->color[1] = totalG;
+    raiz->color[2] = totalB;
+
+    printf("antes calcula erro\n ");
 
     //calcula o erro
-    int histograma[256] = 0;
+    int histograma[256] = {0};
     long erro = 0; 
 
     for(int i = y; i< height + y; i++){
@@ -117,19 +129,36 @@ QuadNode* recursao(Img* pic, int x, int y, int width, int height, float minError
 
     erro = sqrt(erro / totalPixeis); // o mal venceu
 
-    QuadNode* raiz = newNode(x,y,width,height);
+    printf("antes do if\n ");
+    if(erro > minError && meiaHeight > 0 && meiaWidth > 0){
+        printf("entou if\n ");
+        raiz->NW = newNode(raiz->x, raiz->y, meiaWidth , meiaHeight);
+        raiz->NE = newNode(raiz->x + meiaWidth, raiz->y, meiaWidth, meiaHeight);
+        raiz->SW = newNode(raiz->x, raiz->y + meiaHeight, meiaWidth, meiaHeight);
+        raiz->SE = newNode(raiz->x + meiaWidth, raiz->y + meiaHeight, meiaWidth, meiaHeight);
 
-    if(erro > minError){
+        if (meiaHeight == 1 || meiaWidth == 1){
+            raiz->NE->status = CHEIO;
+            raiz->NW->status = CHEIO;
+            raiz->SW->status = CHEIO;
+            raiz->SE->status = CHEIO;
+            return;
+        }
         raiz->status = PARCIAL;
-        raiz->NW = recursao(pic, x, y, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
-        raiz->NE = recursao(pic, x + meiaWidth, y, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
-        raiz->SW = recursao(pic, x, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
-        raiz->NE = recursao(pic, x + meiaWidth, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
+
+        recursao(raiz->NW,pic, x, y, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
+        recursao(raiz->NE,pic, x + meiaWidth, y, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
+        recursao(raiz->SW,pic, x, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
+        recursao(raiz->SE,pic, x + meiaWidth, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[maxHeight][maxWidth]);
     }
     else {
         raiz->status = CHEIO;
+        raiz->NW = NULL;
+        raiz->NE = NULL;
+        raiz->SW = NULL;
+        raiz->SE = NULL;
+    return;
     }
-    return raiz;
 }
 
 // Limpa a memória ocupada pela árvore
