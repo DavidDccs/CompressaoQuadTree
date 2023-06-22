@@ -31,6 +31,8 @@ QuadNode* newNode(int x, int y, int width, int height)
 
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
+int errominimo = minError;
+//    printf("%d, minError do geraNode" , minError);
     //CONVERTE P RGBPIXEL
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
 
@@ -48,21 +50,22 @@ QuadNode* geraQuadtree(Img* pic, float minError)
             imagemCinza[i][j] =  pixels[i][j].r * 0.3 + pixels[i][j].g * 0.59 + pixels[i][j].b * 0.11;
         }
     }
-    printf("gera quad tree\n");
+//    printf("gera quad tree\n");
 
     QuadNode* raiz =newNode(0,0,width,height);
-    recursao(raiz,pic,0,0,width,height,minError,imagemCinza); //cria o primeiro nodo o pai de todos amém
+    recursao(raiz,pic,0,0,width,height,errominimo,imagemCinza); //cria o primeiro nodo o pai de todos amém
 
     return raiz;
 }
 
 void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[height][width]){
+
+    printf("%d, minError" , minError);
+    int errominimo = minError;
     //bota dnv isso
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-    printf("entrou recursao \n");
+//    printf("entrou recursao \n");
     int totalPixeis = height * width;
-    int ex = x;
-    int ey = y;
 
     int meiaWidth = width/2;
     int meiaHeight = height/2;
@@ -71,7 +74,7 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
     int totalR = 0;
     int totalG = 0;
     int totalB = 0;
-    printf("antes bbbbbbbbbbbbbbbb\n ");
+//    printf("antes bbbbbbbbbbbbbbbb\n ");
 
        for (int i = y; i < height + y; i++) {
         for (int j = x; j < width + x; j++) {
@@ -84,7 +87,7 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
             //printf("\n%d blue", totalB);
         }
     }
-    printf("antes totalRGB\n ");
+//    printf("antes totalRGB\n ");
 
     totalR = totalR / totalPixeis;
     totalG = totalG / totalPixeis;
@@ -96,32 +99,31 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
     raiz->color[1] = totalG;
     raiz->color[2] = totalB;
 
-    printf("antes calcula erro\n ");
+//    printf("antes calcula erro\n ");
 
     //calcula o erro
     int histograma[256] = {0};
-    printf("uuuuuu\n");
+//    printf("uuuuuu\n");
     long erro = 0; 
   
     for (int i = y; i < height + y; i++){
         for (int j = x; j < width + x; j++){
             int valorDoPixel = imagemCinza[i][j];
-            histograma[valorDoPixel]++;
-            printf("\n%d histo", histograma);
+            histograma[imagemCinza[i][j]]++;
         }
     }
 
     int intensidade = 0;
     // Para tanto, deve-se fazer um somatório de cada entrada do histograma multiplicada por sua frequência -> tem que multiplica por i, não somar 
-    for(int i =0; i<256; i++) {
-        intensidade = i * histograma[i];
+    for(int i =0; i<255; i++) {
+        intensidade += i * histograma[i];
     }
 
     intensidade = intensidade / totalPixeis;
 
     for(int i = y; i< height + y; i++){
         for(int j = x; j<width + x; j++){
-            erro += (imagemCinza[i][j] - intensidade) * (imagemCinza[i][j] - intensidade); // me recuso a importar math pra uma potenciação
+            erro += pow(imagemCinza[i][j] - intensidade,2); // me recuso a importar math pra uma potenciação
         }
     }
 
@@ -129,10 +131,11 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
     //A seguir, divide-se essa soma pelo total de pixels da região -> entra raiz no meio 
 
     erro = sqrt(erro / totalPixeis); // o mal venceu
-
-    printf("antes do if\n ");
+//    printf("o erro ta como %d",erro);
+//    printf("antes do if\n ");
     if(erro > minError && meiaHeight > 0 && meiaWidth > 0){
-        printf("entou if\n ");
+//        printf("entou if\n ");
+
         raiz->NW = newNode(raiz->x, raiz->y, meiaWidth , meiaHeight);
         raiz->NE = newNode(raiz->x + meiaWidth, raiz->y, meiaWidth, meiaHeight);
         raiz->SW = newNode(raiz->x, raiz->y + meiaHeight, meiaWidth, meiaHeight);
@@ -147,17 +150,13 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
         }
         raiz->status = PARCIAL;
 
-        recursao(raiz->NW,pic, x, y, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
-        recursao(raiz->NE,pic, x + meiaWidth, y, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
-        recursao(raiz->SW,pic, x, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
-        recursao(raiz->SE,pic, x + meiaWidth, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza[height][width]);
+        recursao(raiz->NW,pic, x, y, meiaWidth, meiaHeight, errominimo, imagemCinza);
+        recursao(raiz->NE,pic, x + meiaWidth, y, meiaWidth, meiaHeight, errominimo, imagemCinza);
+        recursao(raiz->SW,pic, x, y + meiaHeight, meiaWidth, meiaHeight, errominimo, imagemCinza);
+        recursao(raiz->SE,pic, x + meiaWidth, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza);
     }
     else {
         raiz->status = CHEIO;
-        raiz->NW = NULL;
-        raiz->NE = NULL;
-        raiz->SW = NULL;
-        raiz->SE = NULL;
     return;
     }
 }

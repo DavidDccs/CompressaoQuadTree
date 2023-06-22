@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
     int chan;
-    pic.img = (RGBPixel *) SOIL_load_image("star.png", &pic.width, &pic.height, &chan, SOIL_LOAD_AUTO); //, SOIL_FLAG_INVERT_Y); // | SOIL_FLAG_POWER_OF_TWO);
+    pic.img = (RGBPixel *) SOIL_load_image("sigil.jpg", &pic.width, &pic.height, &chan, SOIL_LOAD_AUTO); //, SOIL_FLAG_INVERT_Y); // | SOIL_FLAG_POWER_OF_TWO);
     if(!pic.img)
     {
         printf( "SOIL loading error: '%s'\n", SOIL_last_result() );
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     // Registra a funcao callback para tratamento das teclas ASCII
     glutKeyboardFunc (keyboard);
 
-
+    printf("%d, minError do geraNode" , erro);
     tex = SOIL_create_OGL_texture((unsigned char*)pic.img, pic.width, pic.height, SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
 
     printf("Imagem: %d x %d (%d)\n", pic.width, pic.height, chan);
