@@ -34,10 +34,10 @@ Img pic;
 
 int erro=20;     // nível de erro mínimo inicial
 double toGrey(int r, int g, int b);
+
 double toGrey(int r, int g, int b){
-    double resultado =0.0;
-    resultado = 0.3*r + 0.59*g + 0.11*b;
-    return resultado;
+    double aux =0.3*r + 0.59*g + 0.11*b;
+    return aux;
 }
 
 int main(int argc, char** argv)
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
     int chan;
-    pic.img = (RGBPixel *) SOIL_load_image("deathstar.png", &pic.width, &pic.height, &chan, SOIL_LOAD_AUTO); //, SOIL_FLAG_INVERT_Y); // | SOIL_FLAG_POWER_OF_TWO);
+    pic.img = (RGBPixel *) SOIL_load_image("cheryl.png", &pic.width, &pic.height, &chan, SOIL_LOAD_AUTO); //, SOIL_FLAG_INVERT_Y); // | SOIL_FLAG_POWER_OF_TWO);
     if(!pic.img)
     {
         printf( "SOIL loading error: '%s'\n", SOIL_last_result() );

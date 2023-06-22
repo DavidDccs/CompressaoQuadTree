@@ -5,7 +5,7 @@
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
-#include <GL/gl.h>     /* OpenGL functions */
+#include <GL/gl.h> /* OpenGL functions */
 #endif
 
 unsigned int first = 1;
