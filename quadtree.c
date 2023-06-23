@@ -130,11 +130,11 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
 
     //A seguir, divide-se essa soma pelo total de pixels da região -> entra raiz no meio 
 
-    long erroFinal = erro / totalPixeis; // o mal vence
-    erroFinal = sqrt(erroFinal);
+    long erroAtual = erro / totalPixeis; // o mal vence
+    erroAtual = sqrt(erroAtual);
     printf("o erro ta como %d",erro);
 //    printf("antes do if\n ");
-    if( minError < erroFinal && meiaHeight > 0 && meiaWidth > 0){
+    if( minError < erroAtual && meiaHeight > 0 && meiaWidth > 0){
 //        printf("entou if\n ");
 
         raiz->NW = newNode(raiz->x, raiz->y, meiaWidth , meiaHeight);
