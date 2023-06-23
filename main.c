@@ -32,7 +32,7 @@ GLuint tex;
 QuadNode* raiz;
 Img pic;
 
-int erro=20;     // nível de erro mínimo inicial
+int erro= 20;     // nível de erro mínimo inicial
 double toGrey(int r, int g, int b);
 
 double toGrey(int r, int g, int b){

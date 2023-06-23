@@ -47,7 +47,7 @@ int errominimo = minError;
     //deixa a imagem cinza pq o olho humano ve mto verde
     for(int i =0; i< height; i++){
         for(int j = 0; j< width; j++){
-            imagemCinza[i][j] =  pixels[i][j].r * 0.3 + pixels[i][j].g * 0.59 + pixels[i][j].b * 0.11;
+            imagemCinza[i][j] =  (pixels[i][j].r * 0.3) + (pixels[i][j].g * 0.59) + (pixels[i][j].b * 0.11);
         }
     }
 //    printf("gera quad tree\n");
@@ -60,7 +60,6 @@ int errominimo = minError;
 
 void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[height][width]){
 
-    printf("%d, minError" , minError);
     int errominimo = minError;
     //bota dnv isso
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
@@ -87,6 +86,7 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
             //printf("\n%d blue", totalB);
         }
     }
+       printf("numero de pix, %d", totalPixeis);
 //    printf("antes totalRGB\n ");
 
     totalR = totalR / totalPixeis;
@@ -102,38 +102,39 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
 //    printf("antes calcula erro\n ");
 
     //calcula o erro
-    int histograma[256] = {0};
+    int histograma[256] = { 0 };
 //    printf("uuuuuu\n");
     long erro = 0; 
   
     for (int i = y; i < height + y; i++){
         for (int j = x; j < width + x; j++){
-            int valorDoPixel = imagemCinza[i][j];
+           // int valorDoPixel = imagemCinza[i][j];
             histograma[imagemCinza[i][j]]++;
         }
     }
 
     int intensidade = 0;
     // Para tanto, deve-se fazer um somatório de cada entrada do histograma multiplicada por sua frequência -> tem que multiplica por i, não somar 
-    for(int i =0; i<255; i++) {
+    for(int i =0; i<256; i++) {
         intensidade += i * histograma[i];
     }
 
-    intensidade = intensidade / totalPixeis;
+    int intensidadeMedia = intensidade / totalPixeis;
 
-    for(int i = y; i< height + y; i++){
-        for(int j = x; j<width + x; j++){
-            erro += pow(imagemCinza[i][j] - intensidade,2); // me recuso a importar math pra uma potenciação
+    for(int i = y; i < height + y; i++){
+        for(int j = x; j < width + x; j++){
+            erro += pow(imagemCinza[i][j] - intensidadeMedia,2); // me recuso a importar math pra uma potenciação
         }
     }
 
 
     //A seguir, divide-se essa soma pelo total de pixels da região -> entra raiz no meio 
 
-    erro = sqrt(erro / totalPixeis); // o mal venceu
-//    printf("o erro ta como %d",erro);
+    long erroFinal = erro / totalPixeis; // o mal vence
+    erroFinal = sqrt(erroFinal);
+    printf("o erro ta como %d",erro);
 //    printf("antes do if\n ");
-    if(erro > minError && meiaHeight > 0 && meiaWidth > 0){
+    if( minError < erroFinal && meiaHeight > 0 && meiaWidth > 0){
 //        printf("entou if\n ");
 
         raiz->NW = newNode(raiz->x, raiz->y, meiaWidth , meiaHeight);
@@ -153,11 +154,11 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
         recursao(raiz->NW,pic, x, y, meiaWidth, meiaHeight, errominimo, imagemCinza);
         recursao(raiz->NE,pic, x + meiaWidth, y, meiaWidth, meiaHeight, errominimo, imagemCinza);
         recursao(raiz->SW,pic, x, y + meiaHeight, meiaWidth, meiaHeight, errominimo, imagemCinza);
-        recursao(raiz->SE,pic, x + meiaWidth, y + meiaHeight, meiaWidth, meiaHeight, minError, imagemCinza);
+        recursao(raiz->SE,pic, x + meiaWidth, y + meiaHeight, meiaWidth, meiaHeight, errominimo, imagemCinza);
     }
     else {
         raiz->status = CHEIO;
-    return;
+        return;
     }
 }
 
