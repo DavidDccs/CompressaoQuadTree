@@ -33,12 +33,6 @@ QuadNode* raiz;
 Img pic;
 
 int erro= 20;     // nível de erro mínimo inicial
-double toGrey(int r, int g, int b);
-
-double toGrey(int r, int g, int b){
-    double aux =0.3*r + 0.59*g + 0.11*b;
-    return aux;
-}
 
 int main(int argc, char** argv)
 {

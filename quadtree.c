@@ -94,52 +94,22 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
     totalB = totalB / totalPixeis;
     
     //na duvida coloca rgbpixel -> mudaria se fosse array? nos outros testes não...
-
+    // não importa deixa array
+    
     raiz->color[0] = totalR;
     raiz->color[1] = totalG;
     raiz->color[2] = totalB;
 
 //    printf("antes calcula erro\n ");
 
-    //calcula o erro
-    int histograma[256] = { 0 };
-//    printf("uuuuuu\n");
-    long erro = 0; 
-  
-    for (int i = y; i < height + y; i++){
-        for (int j = x; j < width + x; j++){
-           // int valorDoPixel = imagemCinza[i][j];
-            histograma[imagemCinza[i][j]]++;
-        }
-    }
-
-    int intensidade = 0;
-    // Para tanto, deve-se fazer um somatório de cada entrada do histograma multiplicada por sua frequência -> tem que multiplica por i, não somar 
-    for(int i =0; i<256; i++) {
-        intensidade += i * histograma[i];
-    }
-
-    int intensidadeMedia = intensidade / totalPixeis;
-
-    for(int i = y; i < height + y; i++){
-        for(int j = x; j < width + x; j++){
-            erro += pow(imagemCinza[i][j] - intensidadeMedia,2); // me recuso a importar math pra uma potenciação
-        }
-    }
-
-
-    //A seguir, divide-se essa soma pelo total de pixels da região -> entra raiz no meio 
-
-    long erroAtual = erro / totalPixeis; // o mal vence
-    erroAtual = sqrt(erroAtual);
-    printf("o erro ta como %d",erro);
-//    printf("antes do if\n ");
-    if( minError < erroAtual && meiaHeight > 0 && meiaWidth > 0){
+    int erroAtual = retornaErroAtual(width,height,x,y,imagemCinza);
+    
+    if(erroAtual > minError && meiaHeight > 0 && meiaWidth > 0){
 //        printf("entou if\n ");
 
         raiz->NW = newNode(raiz->x, raiz->y, meiaWidth , meiaHeight);
-        raiz->NE = newNode(raiz->x + meiaWidth, raiz->y, meiaWidth, meiaHeight);
         raiz->SW = newNode(raiz->x, raiz->y + meiaHeight, meiaWidth, meiaHeight);
+        raiz->NE = newNode(raiz->x + meiaWidth, raiz->y, meiaWidth, meiaHeight);
         raiz->SE = newNode(raiz->x + meiaWidth, raiz->y + meiaHeight, meiaWidth, meiaHeight);
 
         if (meiaHeight == 1 || meiaWidth == 1){
@@ -161,7 +131,45 @@ void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, flo
         return;
     }
 }
+//modularizando o retorno do erro arruma o problema
+int retornaErroAtual(int width, int height,int x, int y, int imagemCinza[maxHeight][maxWidth]) {
+    //calcula o erro
+    int histograma[256] = { 0 };
+//    printf("uuuuuu\n");
+    int erro = 0;
+  
+    int totalPixeis = width * height;
+    
+    for (int i = y; i < height + y; i++){
+        for (int j = x; j < width + x; j++){
+           // int valorDoPixel = imagemCinza[i][j];
+            histograma[imagemCinza[i][j]]++;
+        }
+    }
 
+    int intensidade = 0;
+    // Para tanto, deve-se fazer um somatório de cada entrada do histograma multiplicada por sua frequência -> tem que multiplica por i, não somar
+    for(int i =0; i<256; i++) {
+        intensidade += i * histograma[i];
+    }
+
+    int intensidadeMedia = intensidade / totalPixeis;
+
+    for(int i = y; i < height + y; i++){
+        for(int j = x; j < width + x; j++){
+            erro += pow(imagemCinza[i][j] - intensidadeMedia,2); // me recuso a importar math pra uma potenciação
+        }
+    }
+    
+    //A seguir, divide-se essa soma pelo total de pixels da região -> entra raiz no meio
+
+    int erroAtual = erro / totalPixeis; // o mal vence
+    erroAtual = sqrt(erroAtual);
+    printf("o erro ta como %d",erro);
+    
+    return erroAtual;
+//    printf("antes do if\n ");
+}
 // Limpa a memória ocupada pela árvore
 void clearTree(QuadNode* n)
 {
