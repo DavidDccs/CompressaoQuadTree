@@ -35,6 +35,8 @@ QuadNode* geraQuadtree(Img* img, float minError);
 QuadNode* newNode(int x, int y, int width, int height);
 void recursao(QuadNode* raiz, Img* pic, int x, int y, int width, int height, float minError, int imagemCinza[maxHeight][maxWidth]);
 
+int retornaErroAtual(int x, int y, int width, int height, int imagemCinza[maxHeight][maxWidth]);
+
 void clearTree(QuadNode* n);
 void drawTree(QuadNode* raiz);
 void drawNode(QuadNode* n);
